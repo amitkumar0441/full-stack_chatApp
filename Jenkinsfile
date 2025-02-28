@@ -1,35 +1,28 @@
 pipeline {
-  agent any
+    agent any 
 
-  environment {
-    SONAR_HOME = tool "sonarqube"
-  }
+    environment {
+        IMAGE_TAG = "${BUILD_NUMBER}" // Using BUILD_NUMBER for versioning
+    }
 
-  stages {
-    stage('Clean UP') {
-      steps {
-        cleanWs()
-      }
-    }
-    stage('Code Check out') {
-      steps {
-        git branch: 'master',
-          url: 'https://github.com/iemafzalhassan/full-stack_chatApp.git'
-      }
-    }
-    stage('Code Quality') {
-      steps {
-        withSonarQubeEnv("sonarqube") {
-          sh "$SONAR_HOME/bin/sonar-scanner -Dsonar.projectName=chat-app -Dsonar.projectKey=chat-app -X"
+    stages {
+        stage('stage01-Checkout the code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/amitkumar0441/full-stack_chatApp.git'
+            }
         }
-      }
-    }
-    stage('Deploy') {
-      steps {
-        script {
-          sh 'docker compose up -d --build'
+
+        stage('stage02-build the docker images') {
+            steps {
+                script {
+                    dir('frontend') {
+                        sh "docker build -t amitkumar0441/chatapp-frontend:${IMAGE_TAG} ."
+                    }
+                    dir('backend') {
+                        sh "docker build -t amitkumar0441/chatapp-backend:${IMAGE_TAG} ."
+                    }
+                }
+            }
         }
-      }
     }
-  }
 }

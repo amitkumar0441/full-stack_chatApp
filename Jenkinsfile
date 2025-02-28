@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         IMAGE_TAG = "${BUILD_NUMBER}" // Using BUILD_NUMBER for versioning
+        KUBECONFIG = '/home/masterserver/.kube/config'  // Set the path for kubectl config
     }
 
     stages {

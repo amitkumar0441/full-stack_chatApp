@@ -6,7 +6,7 @@ pipeline {
     }
 
     stages {
-        stage('Stage 01 - Checkout the code') {
+        stage('Stage 01 - Checkout the Code') {
             steps {
                 git branch: 'main', url: 'https://github.com/amitkumar0441/full-stack_chatApp.git'
             }
@@ -34,8 +34,29 @@ pipeline {
                             docker push amitkumar0441/chatapp-frontend:${IMAGE_TAG} &&
                             docker push amitkumar0441/chatapp-backend:${IMAGE_TAG} &&
                             docker logout &&
-                            docker rmi amitkumar0441/chatapp-frontend:${IMAGE_TAG} && 
+                            docker rmi amitkumar0441/chatapp-frontend:${IMAGE_TAG} &&
                             docker rmi amitkumar0441/chatapp-backend:${IMAGE_TAG}
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Stage 04 - Deploy to Kubernetes') {
+            steps {
+                script {
+                    dir('k8s') {
+                        sh """
+                            kubectl apply -f namespace.yml &&
+                            kubectl apply -f mongodb-pv.yml &&
+                            kubectl apply -f mongodb-pvc.yml &&
+                            kubectl apply -f secrets.yml &&
+                            kubectl apply -f mongodb-deployment.yml &&
+                            kubectl apply -f mongodb-service.yml &&
+                            kubectl apply -f backend-deployment.yml &&
+                            kubectl apply -f backend-service.yml &&
+                            kubectl apply -f frontend-deployment.yml &&
+                            kubectl apply -f frontend-service.yml
                         """
                     }
                 }
